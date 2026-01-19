@@ -3,7 +3,7 @@ import psycopg2
 from psycopg2 import errors 
 
 def registrar_equipo(modelo, serie, estado="disponible", id_responsable=None):
-    """Inserta un nuevo activo en la tabla de equipos"""
+    """Add a new equipment to the database"""
     db = DatabaseConnection()
     conn = db.connect()
     
@@ -17,23 +17,23 @@ def registrar_equipo(modelo, serie, estado="disponible", id_responsable=None):
             
             cursor.execute(query, datos)
             conn.commit() 
-            print(f"Equipo {modelo} registrado con éxito")
+            print(f"Equipment {modelo} registered successfully")
             
         except errors.UniqueViolation:
             conn.rollback()
-            print(f"Error: El número de serie {serie} ya está registrado.")
+            print(f"Error: The serial number {serie} is already registered.")
         except errors.ForeignKeyViolation:
             conn.rollback()
-            print(f"Error: El ID de responsable {id_responsable} no existe.")        
+            print(f"Error: The responsible ID {id_responsable} does not exist.")        
         except psycopg2.Error as e:
             conn.rollback()
-            print(f"Error al registrar equipo: {e}")
+            print(f"Error registering equipment: {e}")
         finally: 
             cursor.close()
             db.disconnect()
             
 def listar_equipos():
-    """Recupera todos los registros de la tabla equipos"""
+    """Retrieve all records from the equipment table"""
     db = DatabaseConnection()
     conn = db.connect()
     
@@ -66,11 +66,47 @@ def actualizar_estado_por_serie(serie_equipo, nuevo_estado):
             
             if cursor.rowcount > 0:
                 conn.commit()
-                print(f"Equipo con serie {serie_equipo} actualizado.")
+                print(f"Equipment with serial number {serie_equipo} updated.")
             else:
-                print(f"No se encontró la serie {serie_equipo}.")
+                print(f"Serial number {serie_equipo} not found.")
         except Exception as e:
             conn.rollback()
             print(f"Error: {e}")
         finally:
+            db.disconnect()
+            
+def registrar_responsable(id_emp, emp_name, departamento, email=None):
+    """Add a new responsible person to the database"""
+    db = DatabaseConnection()
+    conn = db.connect()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            # Usamos %s para que sea seguro contra Inyección SQL
+            query = "INSERT INTO empleados (id_emp, emp_name, departamento, email) VALUES (%s, %s, %s, %s);"
+            cursor.execute(query, (id_emp, emp_name, departamento, email))
+            conn.commit()
+            print(f"Responsible '{emp_name}' registered successfully.")
+        except psycopg2.Error as e:
+            conn.rollback()
+            print(f"Error registering responsible: {e}")
+        finally:
+            if 'cursor' in locals(): cursor.close()
+            db.disconnect()
+
+def listar_responsables():
+    """Retrieve all registered responsible persons"""
+    db = DatabaseConnection()
+    conn = db.connect()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            query = "SELECT id_emp, emp_name, departamento FROM empleados;"
+            cursor.execute(query)
+            return cursor.fetchall()
+        except psycopg2.Error as e:
+            print(f"Error consulting responsible persons: {e}")
+            return []
+        finally:
+            if 'cursor' in locals(): cursor.close()
             db.disconnect()

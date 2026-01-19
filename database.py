@@ -26,5 +26,5 @@ class DatabaseConnection:
     def disconnect(self):
         if self.connection:
             self.connection.close()
-            print("Conexión cerrada.")
+            print("Connection closed.")
         
