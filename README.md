@@ -93,11 +93,3 @@ Testing and improvements (suggestions)
 - Add unit tests for actions (use a test database or a mocking library)
 - Improve input validation and internationalization (some interactive prompts mix English and Spanish)
 
-Contributing
-Contributions are welcome. Please open an issue or submit a pull request with a clear description of your changes.
-
-License
-This project is provided under the MIT License. (Add a LICENSE file if you want to make it explicit.)
-
-Contact
-For questions, open an issue in this repository or reach out via GitHub.
